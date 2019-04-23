@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.griefstore.LetterMapper" >
+  <resultMap id="BaseDataMap" type="top.aiteyou.entity.griefstore.Letter" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="from_user_id" property="fromUserId" jdbcType="INTEGER" />
+    <result column="to_user_id" property="toUserId" jdbcType="INTEGER"/>
+    <result column="replyletter_id" property="replyLetterId" jdbcType="INTEGER"/>
+    <result column="text" property="text" jdbcType="VARCHAR"/>
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="image_url" property="imageUrl" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, from_user_id ,to_user_id,replyletter_id,text,time,image_url
+  </sql>
+
+  <insert id="insert" parameterType="top.aiteyou.entity.griefstore.Letter" 
+      useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+      insert secondproject_griefstore_letter(from_user_id,to_user_id,text,time,image_url)
+       values(#{fromUserId},#{toUserId},#{text},#{time},#{imageUrl});
+  </insert>
+  
+  
+      
+</mapper>

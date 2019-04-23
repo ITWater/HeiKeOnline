@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.GameMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.Game" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="season_id" property="seasonId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="team1_id" property="team1Id" jdbcType="INTEGER" />
+    <result column="score1" property="score1" jdbcType="SMALLINT" />
+    <result column="team2_id" property="team2Id" jdbcType="INTEGER" />
+    <result column="score2" property="score2" jdbcType="SMALLINT" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <!-- game级联 team1 team2  -->
+  <resultMap type="Game" id="gameJoinTeamBrief">
+      <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="season_id" property="seasonId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="team1_id" property="team1Id" jdbcType="INTEGER" />
+    <result column="score1" property="score1" jdbcType="SMALLINT" />
+    <result column="team2_id" property="team2Id" jdbcType="INTEGER" />
+    <result column="score2" property="score2" jdbcType="SMALLINT" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="team1likecount" property="team1likecount" jdbcType="INTEGER" />
+    <result column="team2likecount" property="team2likecount" jdbcType="INTEGER" />
+    <result column="game_id" property="gameId" jdbcType="INTEGER"/>
+    	<association property="team1" javaType="Team" column="team1_id" select="top.aiteyou.mapper.TeamMapper.selectByPrimaryKey">
+    	</association>
+    	<association property="team2" javaType="Team" column="team2_id" select="top.aiteyou.mapper.TeamMapper.selectByPrimaryKey">
+    	</association>
+  </resultMap>
+  <!--game级联 team1 team2(base)->member 、pointinfo 细粒度的  -->
+  <resultMap id="gameJoinTeam_MemberAndPointInfo_MemberAndComments_User" type="Game" >
+      <id column="g_id" property="id" jdbcType="INTEGER" />
+	    <result column="g_season_id" property="seasonId" jdbcType="INTEGER" />
+	    <result column="g_name" property="name" jdbcType="VARCHAR" />
+	    <result column="g_team1_id" property="team1Id" jdbcType="INTEGER" />
+	    <result column="g_score1" property="score1" jdbcType="SMALLINT" />
+	    <result column="g_team2_id" property="team2Id" jdbcType="INTEGER" />
+	    <result column="g_score2" property="score2" jdbcType="SMALLINT" />
+	    <result column="g_location" property="location" jdbcType="VARCHAR" />
+	    <result column="g_time" property="time" jdbcType="TIMESTAMP" />
+	    <result column="g_status" property="status" jdbcType="VARCHAR" />
+	    <result column="team1likecount" property="team1likecount" jdbcType="INTEGER" />
+	    <result column="team2likecount" property="team2likecount" jdbcType="INTEGER" />
+	    <result column="mainjudge" property="mainjudge" jdbcType="VARCHAR" />
+	    <result column="otherjudger1" property="otherjudger1" jdbcType="VARCHAR" />
+	    <result column="otherjudger2" property="otherjudger2" jdbcType="VARCHAR" />
+	    <association property="team1" column="g_team1_id"  select="top.aiteyou.mapper.TeamMapper.selectJoinMembers"><!--球队1  -->
+	    </association>
+	    <association property="team2" javaType="Team" column="g_team2_id" select="top.aiteyou.mapper.TeamMapper.selectJoinMembers"><!--球队2  -->
+	    </association>
+      	<collection property="pointInfos" column="g_id" select="top.aiteyou.mapper.PointInfoMapper.selectByGameIdJoinMember">
+        </collection>
+        <collection property="comments" column="g_id" ofType="GameComment" select="top.aiteyou.mapper.GameCommentMapper.selectSByGameIdJoinUser"></collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, season_id, name, team1_id, score1, team2_id, score2, location, time, status,team1likecount,team2likecount,game_id
+  </sql>
+  <sql id="join_Column_List">
+      id g_id,season_id g_season_id,name g_name,team1_id g_team1_id,
+      score1 g_score1,team2_id g_team2_id,score2 g_score2,location g_location,
+      time g_time,status g_status,team1likecount,team2likecount,mainjudge,otherjudger1,otherjudger2
+  </sql>
+  <select id="selectAllGameByGameIdOrderByTimeDesc" resultMap="gameJoinTeamBrief"  parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List" />
+    from game
+    where name   NOT LIKE '%小组赛%' and game_id =#{gameId}
+    order by time desc
+  </select>
+  <select id="selectTodayFutureGames" resultMap="gameJoinTeamBrief"  >
+    select
+    <include refid="Base_Column_List" />
+    from game
+    where time 
+    > #{current}
+    <if test="gameId != null " >
+	    and game_id	 = #{gameId} 
+	</if> 
+	<if test="teamId != null and teamId != '' and teamId != -1" >
+	    and team1_id = #{teamId} or team2_id = #{teamId}
+	</if>    
+	<if test="seasonId != null and seasonId != '' and seasonId != -1" >
+	    and season_id =#{seasonId}
+	</if>
+    <if test="orderBy != null and orderBy != '' " >
+      order by ${orderBy}  asc
+    </if>
+  </select>
+  <select id="selectTodayOGoGames" resultMap="gameJoinTeamBrief"  >
+    select
+    <include refid="Base_Column_List" />
+    from game
+    where time 
+    <![CDATA[<]]> #{current}
+    <if test="gameId != null " >
+	    and game_id	 = #{gameId} 
+	</if> 
+	<if test="teamId != null and teamId != '' and teamId != -1" >
+	    and team1_id = #{teamId} or team2_id = #{teamId}
+	</if>    
+	<if test="seasonId != null and seasonId != '' and seasonId != -1" >
+	    and season_id =#{seasonId}
+	</if>
+    <if test="orderBy != null and orderBy != '' " >
+      order by ${orderBy}  desc
+    </if>
+  </select>
+  <select id="selectRecentlyGameBriefsByTeamId" resultMap="gameJoinTeamBrief" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from game
+    where team1_id = #{teamId} or team2_id = #{teamId}
+      order by 'time' asc
+  </select>
+  <select id="selectTorrowGameJoinTeam" resultMap="gameJoinTeamBrief"  >
+    select
+    <include refid="Base_Column_List" />
+    from game
+    where 
+    game_id =#{gameId} and 
+    time between #{tomorrow} and #{thedayaftertomorrow}
+      order by 'time' asc
+  </select>
+  
+  <select id="selectOneDetails" resultMap="gameJoinTeam_MemberAndPointInfo_MemberAndComments_User" parameterType="java.lang.Integer" >
+    select 
+    <include refid="join_Column_List" />
+    from game
+    where id = #{gameId,jdbcType=INTEGER}
+  </select>
+  <select id="selectOneJoinTeam" resultMap="gameJoinTeamBrief" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from game
+    where id = #{gameId,jdbcType=INTEGER}
+  </select>
+ <select id="selectOneBaseInfo" resultMap="gameJoinTeamBrief" parameterType="java.lang.Integer">
+     select <include refid="Base_Column_List"></include>
+      from game where id =#{gameId}
+ </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from game
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="top.aiteyou.entity.Game" useGeneratedKeys="true" keyProperty="id">
+    insert into game
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="seasonId != null" >
+        season_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="team1Id != null" >
+        team1_id,
+      </if>
+      <if test="score1 != null" >
+        score1,
+      </if>
+      <if test="team2Id != null" >
+        team2_id,
+      </if>
+      <if test="score2 != null" >
+        score2,
+      </if>
+      <if test="location != null" >
+        location,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="seasonId != null" >
+        #{seasonId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="team1Id != null" >
+        #{team1Id,jdbcType=INTEGER},
+      </if>
+      <if test="score1 != null" >
+        #{score1,jdbcType=SMALLINT},
+      </if>
+      <if test="team2Id != null" >
+        #{team2Id,jdbcType=INTEGER},
+      </if>
+      <if test="score2 != null" >
+        #{score2,jdbcType=SMALLINT},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="top.aiteyou.entity.Game" >
+    update game
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="score1 != null" >
+        score1 = #{score1,jdbcType=SMALLINT},
+      </if>
+      <if test="score2 != null" >
+        score2 = #{score2,jdbcType=SMALLINT},
+      </if>
+      <if test="location != null" >
+        location = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.aiteyou.entity.Game" >
+    update game
+    set season_id = #{seasonId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      team1_id = #{team1Id,jdbcType=INTEGER},
+      score1 = #{score1,jdbcType=SMALLINT},
+      team2_id = #{team2Id,jdbcType=INTEGER},
+      score2 = #{score2,jdbcType=SMALLINT},
+      location = #{location,jdbcType=VARCHAR},
+      time = #{time,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="addTeamSupportCount" parameterType="top.aiteyou.transform.GameSupport" >
+    update game
+    set 
+      ${support} = ${support} + ${count}
+    where id = #{gameId}
+  </update>
+</mapper>

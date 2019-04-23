@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.UserMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="sessionkey" property="sessionkey" jdbcType="VARCHAR"/>
+    <result column="openid" property="openid" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap id="BaseDataMap" type="top.aiteyou.entity.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="viplevel" property="vipLevel" jdbcType="INTEGER"/>
+    <result column="gender" property="gender" jdbcType="VARCHAR"/>
+    <result column="city" property="city" jdbcType="VARCHAR"/>
+    <result column="province" property="province" jdbcType="VARCHAR"/>
+    <result column="country" property="country" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap id="IdentityMap" type="top.aiteyou.entity.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR"/>
+    <result column="viplevel" property="vipLevel" jdbcType="INTEGER"/>
+    
+  </resultMap>
+  <resultMap id="UserSelfData" type="top.aiteyou.entity.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="viplevel" property="vipLevel" jdbcType="INTEGER"/>
+    <result column="gender" property="gender" jdbcType="VARCHAR"/>
+    <result column="city" property="city" jdbcType="VARCHAR"/>
+    <result column="province" property="province" jdbcType="VARCHAR"/>
+    <result column="country" property="country" jdbcType="VARCHAR"/>
+    <result column="registertime" property="registerTime" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  <resultMap id="UserID" type="top.aiteyou.entity.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, name, icon,sessionkey,openid
+  </sql>
+  <sql id="Base_Data_List" >
+    id, name, icon,viplevel,gender,city,province,country
+  </sql>
+  <sql id="Identity_Data" >
+    id, name,icon,password,viplevel
+  </sql>
+  <sql id="Author_Data" >
+    id, name,icon,viplevel
+  </sql>
+  <sql id="Userself_Data">
+      id, name,icon,viplevel,gender,city,province,country,registertime
+  </sql>
+  <sql id="User_Id">
+      id
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectUserIdentity" resultMap="IdentityMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Identity_Data" />
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectBaseData" resultMap="BaseDataMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Data_List" />
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectOpenid" resultType="java.lang.String" parameterType="java.lang.Integer" >
+    select openid
+    from user
+    where id = #{userId,jdbcType=INTEGER}
+  </select>
+  <select id="seltctVipLevel" resultMap="IdentityMap"  parameterType="java.lang.Integer" >
+    select <include refid="Author_Data"></include>
+    from user
+    where id = #{userId,jdbcType=INTEGER}
+  </select>
+  <select id="selectUserBaseData" resultMap="UserSelfData" parameterType="java.lang.Integer">
+    select <include refid="Userself_Data"></include>
+    from user
+    where id = #{userId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllAdminUser" resultMap="UserID" >
+      select <include refid="User_Id"></include> from user
+      where viplevel =1;
+  </select>
+  <select id="selectAllUser" resultMap="UserID" parameterType="java.lang.Integer">
+      select <include refid="User_Id"></include> from user where appid=#{appId}
+  </select>
+  <select id="selectGriefReplyer" resultMap="BaseDataMap"> 
+  	select     <include refid="Base_Data_List" />
+  	from  user where viplevel =5 
+  </select>
+  
+  
+  
+  
+  
+  <insert id="insert" parameterType="top.aiteyou.entity.User" useGeneratedKeys="true" 
+      keyColumn="id" keyProperty="id">
+    insert into user (id,sessionkey,openid,registertime,appid
+      )
+    values (#{id,jdbcType=INTEGER}, #{sessionkey,jdbcType=VARCHAR} ,#{openid,jdbcType=VARCHAR},#{registerTime},#{appId} )
+  </insert>
+  <insert id="insertSelective" parameterType="top.aiteyou.entity.User" >
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="sessionkey != null" >
+        sessionkey,
+      </if>
+      <if test="openid != null" >
+        openid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="sessionkey != null" >
+        #{sessionkey,jdbcType=VARCHAR},
+      </if>
+      <if test="openid != null" >
+        #{openid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateBaseData" parameterType="top.aiteyou.entity.User" >
+    update user
+    <set >
+      <if test="name != null and name!='' " >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null and icon!='' " >
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null and gender!='' " >
+        gender = #{gender,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null and city!='' " >
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null and province!='' " >
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null and country!='' " >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateSessionKey" parameterType="top.aiteyou.entity.User" >
+    update user
+    set sessionkey = #{sessionkey,jdbcType=VARCHAR}
+     where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateIdentity" parameterType="top.aiteyou.entity.User" >
+    update user
+    set viplevel = #{vipLevel,jdbcType=VARCHAR}
+     where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolarticle.ArticleMapper" >
+  <resultMap id="BaseDataMap" type="top.aiteyou.entity.schoolArticle.Article" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="videocoverurl" property="videoCoverUrl" jdbcType="VARCHAR" />
+    <result column="videoid" property="videoId" jdbcType="VARCHAR" />
+    <result column="playurl" property="playUrl" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="fromdevice" property="fromdevice" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap id="JoinBaseUser" type="top.aiteyou.entity.schoolArticle.Article" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="videocoverurl" property="videoCoverUrl" jdbcType="VARCHAR" />
+    <result column="videoid" property="videoId" jdbcType="VARCHAR" />
+    <result column="playurl" property="playUrl" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="fromdevice" property="fromdevice" jdbcType="VARCHAR"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="articlePictures" column="id" select="top.aiteyou.mapper.schoolarticle.ArticlePictureMapper.selectPicturesByArticleId"></collection>
+  </resultMap>
+  <resultMap id="JoinBaseUserAndComments" type="top.aiteyou.entity.schoolArticle.Article" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="videocoverurl" property="videoCoverUrl" jdbcType="VARCHAR" />
+    <result column="videoid" property="videoId" jdbcType="VARCHAR" />
+    <result column="playurl" property="playUrl" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="fromdevice" property="fromdevice" jdbcType="VARCHAR"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="articleComments" column="id" select="top.aiteyou.mapper.schoolarticle.ArticleCommentMapper.getArticleCommentByArticleId" ></collection>
+    <collection property="articlePictures" column="id" select="top.aiteyou.mapper.schoolarticle.ArticlePictureMapper.selectPicturesByArticleId"></collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id ,text,videocoverurl,videoid,playurl,likecount,commentcount,viewcount,time,fromdevice
+  </sql>
+  
+  <select id="selectArticles" resultMap="JoinBaseUser" parameterType="java.util.List" >
+    select 
+    <include refid="Base_Column_List" />
+    from article 
+    where status=1 
+    <if test="concernIds != null  ">
+        <if test="concernIds.size() != 0">
+            and user_id in 
+	        <foreach collection="concernIds" item="concernId" open="(" close=")" separator="," >
+	            #{concernId}
+	        </foreach>
+        </if>
+        
+        <if test="concernIds.size() == 0">
+            and user_id =-1
+        </if>
+    </if>
+    order by time DESC
+  </select>
+  <select id="selectOneDetail" resultMap="JoinBaseUserAndComments" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from article 
+    where id= #{id}
+  </select>
+  <select id="selectBaseData" resultMap="BaseDataMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from article 
+    where id= #{id}
+  </select>
+  
+  
+  <insert id="insert" parameterType="top.aiteyou.entity.schoolArticle.Article" useGeneratedKeys="true"
+      keyColumn="id" keyProperty="id">
+      insert into article
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="text != null" >
+        text,
+      </if>
+      <if test="videoCoverUrl != null" >
+        videocoverurl,
+      </if>
+      <if test="videoId != null" >
+        videoid,
+      </if>
+      <if test="likecount != null" >
+        likecount,
+      </if>
+      <if test="commentcount != null" >
+        commentcount,
+      </if>
+      <if test="viewcount != null" >
+        viewcount,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="fromdevice != null" >
+        fromdevice,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="text != null" >
+        #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="videoCoverUrl != null" >
+        #{videocoverurl,jdbcType=VARCHAR},
+      </if>
+      <if test="videoId != null" >
+        #{videoId,jdbcType=VARCHAR},
+      </if>
+      <if test="likecount != null" >
+        #{likecount,jdbcType=INTEGER},
+      </if>
+      <if test="commentcount != null" >
+        #{commentcount,jdbcType=INTEGER},
+      </if>
+      <if test="viewcount != null" >
+        #{viewcount,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fromdevice != null" >
+        #{fromdevice,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+    <update id="updateArticleViewCount" parameterType="java.lang.Integer">
+        update article set viewcount =viewcount+1 where id =#{id}
+    </update>
+    <update id="updateCommentCount" parameterType="java.lang.Integer">
+        update article set commentcount =commentcount+1 where id =#{id}
+    </update>
+    <update id="addLikeCount" parameterType="top.aiteyou.transform.schoolarticle.ArticleLike">
+        update article set likecount =likecount+#{count} where id =#{articleId}
+    </update>
+    <update id="updateArticleStatus" parameterType="java.lang.Integer">
+        update article set status =-3 where id=#{id}
+    </update>
+      
+</mapper>

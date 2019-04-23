@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolquestionanswer.SchoolQuestionMapper" >
+  
+  <resultMap id="BaseDataJoinUser" type="top.aiteyou.entity.schoolquestionanswer.SchoolQuestion" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="viewcount" property="viewCount" jdbcType="INTEGER" />
+    <result column="answercount" property="answerCount" jdbcType="INTEGER" />
+    <result column="prefectanswer_id" property="perfectanswerId" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+  </resultMap>
+  
+  <resultMap id="JoinUserAndAnswers" type="top.aiteyou.entity.schoolquestionanswer.SchoolQuestion" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="viewcount" property="viewCount" jdbcType="INTEGER" />
+    <result column="answercount" property="answerCount" jdbcType="INTEGER" />
+    <result column="prefectanswer_id" property="perfectanswerId" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="answers" column="id" select="top.aiteyou.mapper.schoolquestionanswer.SchoolAnswerMapper.selectByQuestionId"></collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id,type,user_id,title,content,viewcount,answercount,prefectanswer_id,time
+  </sql>
+  
+  <select id="selectDetail" resultMap="JoinUserAndAnswers" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from school_questionanswer_question
+    where id  = #{questionId,jdbcType=INTEGER} ;
+  </select>
+  
+  <select id="selectListByQuestionType" resultMap="BaseDataJoinUser"  >
+    select 
+    <include refid="Base_Column_List" />
+     ,(DATE_FORMAT(TIME,'%y')*1000+DATE_FORMAT(TIME,'%u')) yearandweeks
+    from school_questionanswer_question
+    where status=1 and type like '%${type}%' order by yearandweeks DESC,viewcount DESC;
+  </select>
+  <select id="selectListByTopHot" resultMap="BaseDataJoinUser"  >
+    select 
+    <include refid="Base_Column_List" />
+    ,(DATE_FORMAT(TIME,'%y')*1000+DATE_FORMAT(TIME,'%c')) yearandmouths
+    from school_questionanswer_question
+    where status=1 order by yearandmouths DESC,viewcount DESC;
+  </select>
+  <select id="selectListByForNewest" resultMap="BaseDataJoinUser"  >
+    select 
+    <include refid="Base_Column_List" />
+    from school_questionanswer_question
+    where status=1  order by time DESC
+  </select>
+  <select id="selectListByNoPerfectAnswer" resultMap="BaseDataJoinUser"  >
+    select 
+    <include refid="Base_Column_List" />
+     ,(DATE_FORMAT(time,'%y')*1000+DATE_FORMAT(TIME,'%j')) yearanddays
+    from school_questionanswer_question
+    where status=1 and  prefectanswer_id = -1 order by viewcount DESC, yearanddays DESC;
+  </select>
+  
+  
+</mapper>

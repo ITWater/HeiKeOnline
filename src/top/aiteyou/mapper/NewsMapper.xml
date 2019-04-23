@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.NewsMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.News" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="headimage" property="headImage" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentCount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewCount" jdbcType="INTEGER" />
+    <result column="kindof" property="kindof" jdbcType="VARCHAR" />
+    <result column="briefinfo" property="briefInfo" jdbcType="VARCHAR" />
+    <result column="author" property="authorTemp" jdbcType="VARCHAR" />
+    <result column="webviewpageurl" property="webViewPageUrl" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="NewsNotContentJoinAuthor" type="top.aiteyou.entity.News" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="headimage" property="headImage" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentCount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewCount" jdbcType="INTEGER" />
+    <result column="kindof" property="kindof" jdbcType="VARCHAR" />
+    <result column="briefinfo" property="briefInfo" jdbcType="VARCHAR" />
+    <result column="author" property="authorTemp" jdbcType="VARCHAR" />
+    <result column="webviewpageurl" property="webViewPageUrl" jdbcType="VARCHAR" />
+    <association property="author" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+  </resultMap>
+  <resultMap id="NewsJoinAuthorComments" type="top.aiteyou.entity.News" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="headimage" property="headImage" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentCount" jdbcType="INTEGER" />
+    <result column="viewcount" property="viewCount" jdbcType="INTEGER" />
+    <result column="kindof" property="kindof" jdbcType="VARCHAR" />
+    <result column="briefinfo" property="briefInfo" jdbcType="VARCHAR" />
+    <result column="author" property="authorTemp" jdbcType="VARCHAR" />
+    <result column="webviewpageurl" property="webViewPageUrl" jdbcType="VARCHAR" />
+    <association property="author" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="newsComments" ofType="NewsComment" column="id" select="top.aiteyou.mapper.NewsCommentMapper.selecByNewsIdJoinUser"></collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, user_id,content,title,time,headimage,likecount,commentcount,viewcount,kindof,briefinfo,author,webviewpageurl
+  </sql>
+  
+  <select id="selectTopBanners" resultMap="BaseResultMap"  >
+    select 
+    <include refid="Base_Column_List" />
+    from news
+    where isbanner =1 
+     ORDER BY weight DESC,TIME DESC
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from news
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectNewsJoinAuthor" resultMap="NewsNotContentJoinAuthor" >
+     select 
+   id, user_id,title,time,headimage,likecount,commentcount,viewcount,kindof,weight,briefinfo,author,webviewpageurl
+    from news where status=1 and weight=0  
+    order by time desc
+  </select>
+  <select id="selectTopNews" resultMap="NewsNotContentJoinAuthor" >
+     SELECT 
+   id, user_id,title,TIME,headimage,likecount,commentcount,viewcount,kindof,weight,briefinfo,author	,webviewpageurl
+    FROM news WHERE status=1 and  isbanner =0 
+    ORDER BY weight DESC,TIME DESC
+  </select>
+  
+  <select id="selectNewsJoinAuthorComments" resultMap="NewsJoinAuthorComments" parameterType="java.lang.Integer" >
+     select 
+   <include refid="Base_Column_List" />
+    from news where id=#{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectOneBaseInfo" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+      select <include refid="Base_Column_List"></include> from news
+      where id=#{id}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from news
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertOneNews" parameterType="top.aiteyou.entity.News"
+      useGeneratedKeys="true" keyProperty="id" >
+    insert into news(
+    	<if test="id != null" >
+        id,
+      </if>
+     	user_id,content,title,time,headimage,likecount,commentcount,kindof)
+     	values(
+     	<if test="id != null" >
+         #{id,jdbcType=INTEGER},
+      </if>
+      #{userId},#{content},#{title},#{time,jdbcType=TIMESTAMP},#{headImage},#{likecount},#{commentCount},#{kindof})
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="top.aiteyou.entity.News" >
+    update news
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null" >
+        introduce = #{introduce,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="addNewsCommentCount" parameterType="java.lang.Integer" >
+    update news
+    set commentcount =commentcount+1
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="addNewsLikeCount" parameterType="top.aiteyou.transform.NewsLike" >
+    update news
+    set likecount =likecount+ #{count,jdbcType=INTEGER}
+    where id = #{newsId,jdbcType=INTEGER}
+  </update>
+  <update id="addNewsViewCount" parameterType="top.aiteyou.transform.NewsView" >
+    update news
+    set viewcount =viewcount+ #{count,jdbcType=INTEGER}
+    where id = #{newsId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.aiteyou.entity.News" >
+    update news
+    set name = #{name,jdbcType=VARCHAR},
+      introduce = #{introduce,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="addViewCount" parameterType="java.lang.Integer">
+      update news set viewcount =viewcount+1 where id=#{newsId};
+  </update>
+</mapper>

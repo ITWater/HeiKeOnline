@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolarticle.ArticleCommentToCommentMapper" >
+  <resultMap id="JoinUser" type="top.aiteyou.entity.schoolArticle.ArticleCommentToComment" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="comment_id" property="commentId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER"/>
+     <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,comment_id,user_id ,content,likecount,time,status
+  </sql>
+  
+  <select id="selectTopOneJoinUser" resultMap="JoinUser" parameterType="java.lang.Integer">
+      select 
+      <include refid="Base_Column_List" /> 
+      from articlecomment_comment where  comment_id=#{commentId} and status=1 order by likecount desc limit 1;
+  </select>
+  
+  <select id="selectComments" resultMap="JoinUser" parameterType="java.lang.Integer">
+      select <include refid="Base_Column_List" /> 
+      from articlecomment_comment where  comment_id=#{commentId} and status=1 order by likecount ;
+  </select>
+  <select id="selectNotLegalComments" resultMap="JoinUser" parameterType="java.lang.Integer">
+      select <include refid="Base_Column_List"></include> from 
+       articlecomment_comment where comment_id=#{commentId} and status=0 
+  </select>
+  
+  <insert id="insertOne" parameterType="top.aiteyou.entity.schoolArticle.ArticleCommentToComment" 
+     useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+      insert into articlecomment_comment(comment_id,user_id,content,time,status)
+       values(#{commentId},#{userId},#{content},#{time},#{status});
+  </insert>
+  <update id="addLikeCount" parameterType="top.aiteyou.transform.schoolarticle.ArticleCommentToCommentLike">
+      update articlecomment_comment set likecount=likecount +#{count} where id =#{commentToCommentId}
+  </update>
+</mapper>

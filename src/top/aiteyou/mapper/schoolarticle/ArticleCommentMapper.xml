@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolarticle.ArticleCommentMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.schoolArticle.ArticleComment" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_id" property="articleId" jdbcType="INTEGER" />
+    <result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="picture" property="picture" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+  </resultMap>
+  <resultMap id="JoinBaseUserAndTopOneComment" type="top.aiteyou.entity.schoolArticle.ArticleComment" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_id" property="articleId" jdbcType="INTEGER" />
+	<result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="picture" property="picture" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="commentToComments" column="id" select="top.aiteyou.mapper.schoolarticle.ArticleCommentToCommentMapper.selectTopOneJoinUser"></collection>
+  </resultMap>
+  <resultMap id="JoinUserAndComments" type="top.aiteyou.entity.schoolArticle.ArticleComment" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_id" property="articleId" jdbcType="INTEGER" />
+	<result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="picture" property="picture" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="commentToComments" column="id" select="top.aiteyou.mapper.schoolarticle.ArticleCommentToCommentMapper.selectComments"></collection>
+  </resultMap>
+  <resultMap id="JoinBaseUser" type="top.aiteyou.entity.schoolArticle.ArticleComment" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="article_id" property="articleId" jdbcType="INTEGER" />
+	<result column="text" property="text" jdbcType="VARCHAR" />
+    <result column="picture" property="picture" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="commentcount" property="commentcount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id ,article_id,text,picture,likecount,commentcount,time,status
+  </sql>
+  
+  <select id="getArticleCommentByArticleId" resultMap="JoinBaseUserAndTopOneComment" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from articlecomment 
+    where article_id =#{articleId} and status=1 
+    order by likecount DESC limit 0,20
+  </select>
+  <select id="getOtherCommentsByArticleId" resultMap="JoinBaseUserAndTopOneComment" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from articlecomment 
+    where article_id =#{articleId}  and status=1 
+    order by likecount DESC 
+  </select>
+  <select id="selectOneDetailAndComments" resultMap="JoinUserAndComments" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from articlecomment 
+    where id = #{articleCommentId} order by likecount desc
+  </select>
+  <select id="selectBaseData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from articlecomment 
+    where id = #{articleCommentId} 
+  </select>
+  <select id="selectNotLegalComments" resultMap="JoinBaseUser" parameterType="java.lang.Integer">
+      select <include refid="Base_Column_List" /> from 
+       articlecomment where article_id=#{articleId} and status=0;
+  </select>
+  
+  
+  
+  <insert id="insertOneComment" parameterType="top.aiteyou.entity.schoolArticle.ArticleComment" useGeneratedKeys="true"
+      keyColumn="id" keyProperty="id">
+      insert into articlecomment(article_id,user_id,text,picture,time,status) 
+      value(#{articleId},#{userId},#{text},#{picture},#{time,jdbcType=TIMESTAMP},#{status});
+  </insert>
+  
+  <update id="updataCommentCountById" parameterType="java.lang.Integer">
+      update articlecomment set commentcount =commentcount +1 where id =#{articleCommentId}
+  </update>
+  <update id="addLikeCount" parameterType="top.aiteyou.transform.schoolarticle.ArticleCommentLike">
+      update articlecomment set likecount =likecount +#{count} where id =#{articleCommentId}
+  </update>
+  <update id="updateCommentStatus" parameterType="java.lang.Integer">
+      update articlecomment set status=-3 where id =#{articleId}
+  </update>
+  
+</mapper>

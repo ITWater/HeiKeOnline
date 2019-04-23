@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.ScoreRankingMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.ScoreRanking" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="team_id" property="teamId" jdbcType="INTEGER" />
+    <result column="ord" property="ord" jdbcType="INTEGER" />
+    <result column="win" property="win" jdbcType="INTEGER" />
+    <result column="draw" property="draw" jdbcType="INTEGER" />
+    <result column="defeated" property="defeated" jdbcType="INTEGER" />
+    <result column="goal" property="goal" jdbcType="INTEGER" />
+    <result column="lost" property="lost" jdbcType="INTEGER" />
+    <result column="realgoal" property="realgoal" jdbcType="INTEGER" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+    <result column="ranking" property="ranking" jdbcType="INTEGER" />
+    <result column="game_id" property="gameId" jdbcType="INTEGER"/>
+    <result column="groupname" property="groupName" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap id="JoinBriefTeamMap" type="top.aiteyou.entity.ScoreRanking" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="team_id" property="teamId" jdbcType="INTEGER" />
+    <result column="ord" property="ord" jdbcType="INTEGER" />
+    <result column="win" property="win" jdbcType="INTEGER" />
+    <result column="draw" property="draw" jdbcType="INTEGER" />
+    <result column="defeated" property="defeated" jdbcType="INTEGER" />
+    <result column="goal" property="goal" jdbcType="INTEGER" />
+    <result column="lost" property="lost" jdbcType="INTEGER" />
+    <result column="realgoal" property="realgoal" jdbcType="INTEGER" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+    <result column="ranking" property="ranking" jdbcType="INTEGER" />
+     <result column="game_id" property="gameId" jdbcType="INTEGER"/>
+    <result column="groupname" property="groupName" jdbcType="VARCHAR"/>
+    <association property="team" column="team_id" select="top.aiteyou.mapper.TeamMapper.selectByPrimaryKey"></association>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, team_id ,ord ,win ,draw ,defeated ,goal,lost,realgoal,score,ranking,game_id,groupname
+  </sql>
+  
+  <select id="selectByGameIdNotGroup" resultMap="JoinBriefTeamMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from scoreranking 
+    where game_id =#{gameId} and groupname = '-1'
+    order by ranking ASC
+  </select>
+  <select id="selectByGameIdGroup" resultMap="JoinBriefTeamMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from scoreranking 
+    where game_id =#{gameId} and groupname != '-1'
+    order by ranking ASC
+  </select>
+  
+  
+</mapper>

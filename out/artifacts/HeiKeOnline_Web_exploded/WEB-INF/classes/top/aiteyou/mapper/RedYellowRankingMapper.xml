@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.RedYellowRankingMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.RedYellowRanking" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="team_id" property="teamId" jdbcType="INTEGER" />
+    <result column="member_id" property="memberId" jdbcType="INTEGER" />
+    <result column="redcount" property="redcount" jdbcType="INTEGER" />
+    <result column="yellowcount" property="yellowcount" jdbcType="INTEGER" />
+    <result column="ranking" property="ranking" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="JoinBriefTeamAndBriefMemberMap" type="top.aiteyou.entity.RedYellowRanking" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="team_id" property="teamId" jdbcType="INTEGER" />
+    <result column="member_id" property="memberId" jdbcType="INTEGER" />
+    <result column="redcount" property="redcount" jdbcType="INTEGER" />
+    <result column="yellowcount" property="yellowcount" jdbcType="INTEGER" />
+    <result column="ranking" property="ranking" jdbcType="INTEGER" />
+    <association property="team" column="team_id" select="top.aiteyou.mapper.TeamMapper.selectByPrimaryKey"></association>
+	<association property="member" column="member_id" select="top.aiteyou.mapper.MemberMapper.selectByPrimaryKey"></association>  
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, team_id ,member_id,redcount,yellowcount,ranking
+  </sql>
+  
+  <select id="selectAll" resultMap="JoinBriefTeamAndBriefMemberMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from redyellowranking 
+    	where game_id =#{gameId} 
+    order by ranking ASC
+  </select>
+  
+  
+  
+</mapper>

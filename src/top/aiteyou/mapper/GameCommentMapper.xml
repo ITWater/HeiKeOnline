@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.GameCommentMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.GameComment" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="game_id" property="gameId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="GameCommentJoinUser" type="top.aiteyou.entity.GameComment" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="game_id" property="gameId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectByPrimaryKey"></association>
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    id, game_id, user_id, content, likecount,time,status
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from gamecomment
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectSByGameIdJoinUser" resultMap="GameCommentJoinUser" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from gamecomment
+    where status =1 and game_id = #{gameId,jdbcType=INTEGER} order by likecount desc
+  </select>
+   <select id="selectNotLegalComments" resultMap="GameCommentJoinUser" parameterType="java.lang.Integer">
+      select <include refid="Base_Column_List" />
+       from gamecomment where  game_id=#{gameId} and  status=0 
+  </select>
+   
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from comment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="top.aiteyou.entity.GameComment"
+      useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    insert into gamecomment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="gameId != null" >
+        game_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="likecount != null" >
+        likecount,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="status != null" >
+        status
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="gameId != null" >
+        #{gameId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="likecount != null" >
+        #{likecount,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+       <if test="status != null" >
+        #{status,jdbcType=INTEGER}
+      </if>
+    </trim>
+  </insert>
+  
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="top.aiteyou.entity.GameComment" >
+    update gamecomment
+    <set >
+      <if test="gameId != null" >
+        game_id = #{gameId,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="likecount != null" >
+        likecount = #{likecount,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="addLikeCount" parameterType="top.aiteyou.transform.GameCommentLike" >
+    update gamecomment
+    set likecount = likecount+ #{count,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolarticle.UserConcernInfoMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.schoolArticle.UserConcernInfo" >
+     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="concern_user_id" property="concernUserId" jdbcType="INTEGER" />
+     <result column="time" property="time" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id ,concern_user_id,time
+  </sql>
+  
+  <insert id="insertConcern"  useGeneratedKeys="true"
+      keyColumn="id" keyProperty="id">
+      insert into school_article_userconcerninfo(user_id,concern_user_id,time) 
+      value(#{userId},#{concernUserId},#{time,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <delete id="deleteConcern" >
+      delete from school_article_userconcerninfo where user_id=#{userId} and concern_user_id= #{concernUserId}
+  </delete>
+  
+</mapper>

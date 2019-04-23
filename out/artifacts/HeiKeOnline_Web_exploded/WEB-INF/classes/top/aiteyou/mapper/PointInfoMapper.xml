@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.PointInfoMapper" >
+  <resultMap id="BaseResultMap" type="PointInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="game_id" property="gameId" jdbcType="INTEGER" />
+    <result column="member_id" property="memberId" jdbcType="INTEGER" />
+    <result column="event" property="event" jdbcType="VARCHAR" />
+    <result column="currentscore" property="currentscore" jdbcType="VARCHAR" />
+    <result column="happentime" property="happentime" jdbcType="SMALLINT" />
+    <result column="eventkind" property="eventKind" jdbcType="VARCHAR" />
+    <result column="teamname" property="teamName" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="pointinfo_join_member" type="PointInfo">
+      <id column="id" property="id"/>
+		<result column="event" property="event"/>
+		<result column="currentscore" property="currentscore"/>
+		<result column="happentime" property="happentime"/>
+		<result column="eventkind" property="eventKind"/>
+		<result column="teamname" property="teamName" jdbcType="VARCHAR" />
+		<association property="member" javaType="Member" column="member_id">
+		    <id column="member_id" property="id"/>
+		    <result column="member_name" property="name"/>
+		    <result column="member_icon" property="icon"/>
+		</association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, game_id, member_id, event, currentscore, happentime, eventkind,teamname 
+  </sql>
+  <sql id="join_Column_List" >
+    pointinfo.id, pointinfo.game_id, pointinfo.member_id, pointinfo.event, pointinfo.currentscore, pointinfo.happentime, pointinfo.eventkind ,
+     pointinfo.teamname ,member.name member_name,member.icon member_icon
+  </sql>
+  
+  <select id="selectByGameIdJoinMember" resultMap="pointinfo_join_member" parameterType="java.lang.Integer" >
+  		select 
+  		<include refid="join_Column_List"></include>
+  		from pointinfo join member on  pointinfo.member_id=member.id
+  		where pointinfo.game_id=#{gameId} 
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from pointinfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from pointinfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="top.aiteyou.entity.PointInfo" >
+    insert into pointinfo (id, game_id, member_id, 
+      event, currentscore, happentime, 
+      eventkind)
+    values (#{id,jdbcType=INTEGER}, #{gameId,jdbcType=INTEGER}, #{memberId,jdbcType=INTEGER}, 
+      #{event,jdbcType=VARCHAR}, #{currentscore,jdbcType=VARCHAR}, #{happentime,jdbcType=SMALLINT}, 
+      #{eventkind,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="top.aiteyou.entity.PointInfo" >
+    insert into pointinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="gameId != null" >
+        game_id,
+      </if>
+      <if test="memberId != null" >
+        member_id,
+      </if>
+      <if test="event != null" >
+        event,
+      </if>
+      <if test="currentscore != null" >
+        currentscore,
+      </if>
+      <if test="happentime != null" >
+        happentime,
+      </if>
+      <if test="eventkind != null" >
+        eventkind,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="gameId != null" >
+        #{gameId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="event != null" >
+        #{event,jdbcType=VARCHAR},
+      </if>
+      <if test="currentscore != null" >
+        #{currentscore,jdbcType=VARCHAR},
+      </if>
+      <if test="happentime != null" >
+        #{happentime,jdbcType=SMALLINT},
+      </if>
+      <if test="eventkind != null" >
+        #{eventkind,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="top.aiteyou.entity.PointInfo" >
+    update pointinfo
+    <set >
+      <if test="gameId != null" >
+        game_id = #{gameId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="event != null" >
+        event = #{event,jdbcType=VARCHAR},
+      </if>
+      <if test="currentscore != null" >
+        currentscore = #{currentscore,jdbcType=VARCHAR},
+      </if>
+      <if test="happentime != null" >
+        happentime = #{happentime,jdbcType=SMALLINT},
+      </if>
+      <if test="eventkind != null" >
+        eventkind = #{eventkind,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.aiteyou.entity.PointInfo" >
+    update pointinfo
+    set game_id = #{gameId,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER},
+      event = #{event,jdbcType=VARCHAR},
+      currentscore = #{currentscore,jdbcType=VARCHAR},
+      happentime = #{happentime,jdbcType=SMALLINT},
+      eventkind = #{eventkind,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

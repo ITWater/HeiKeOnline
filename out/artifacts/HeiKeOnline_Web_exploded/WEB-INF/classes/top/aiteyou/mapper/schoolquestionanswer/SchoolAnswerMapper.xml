@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.schoolquestionanswer.SchoolAnswerMapper" >
+  <resultMap id="JoinUserAndComments" type="top.aiteyou.entity.schoolquestionanswer.SchoolAnswer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="question_id" property="questionId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="likecount" property="likecount" jdbcType="INTEGER" />
+    <result column="disscount" property="disscount" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <association property="user" column="user_id" select="top.aiteyou.mapper.UserMapper.selectBaseData"></association>
+    <collection property="comments" column="id" select="top.aiteyou.mapper.schoolquestionanswer.SchoolAnswerCommentMapper.selectByAnswerId"></collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id,question_id,user_id,content,likecount,disscount,time
+  </sql>
+  
+  <select id="selectByQuestionId" resultMap="JoinUserAndComments" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from school_questionanswer_answer
+    where status =1 and question_id  = #{questionId,jdbcType=INTEGER} order by likecount DESC;
+  </select>
+  
+  
+</mapper>

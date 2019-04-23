@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>参数</title>
+        <!-- 加载Query文件-->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.0.js">
+        </script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+            		var data = {
+            			offset:0,
+            			limit:1,
+            			userId:-1
+            		}
+                    $.post({
+                        url: "http://localhost:8090/HeiKeOnline/articles/list.do",
+						contentType:"application/json",
+						data: JSON.stringify(data),
+                        success: function (result) {
+                        	alert("succes");
+                        }
+                    });
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+</html>

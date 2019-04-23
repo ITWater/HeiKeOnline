@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.aiteyou.mapper.InviteCodeMapper" >
+  <resultMap id="BaseResultMap" type="top.aiteyou.entity.InviteCode" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="kindof" property="kindof" jdbcType="INTEGER" />
+    <result column="isuse" property="isUse" jdbcType="BOOLEAN" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, code, kindof,isuse,user_id,time
+  </sql>
+  
+  <select id="selectByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+      select <include refid="Base_Column_List"></include>
+       from invitecode
+       where code =#{code}
+  </select>
+  <update id="useCode" parameterType="top.aiteyou.entity.InviteCode">
+      update invitecode set user_id =#{userId} ,isuse=#{isUse} where 
+      id =#{id}
+  </update>
+  
+  
+  <insert id="insertBatch" parameterType="java.util.List"
+      useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+       insert into invitecode ( code,kindof,time)
+        values
+         <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.code}, #{item.kindof},#{item.time})
+        </foreach>
+  </insert>
+</mapper>
